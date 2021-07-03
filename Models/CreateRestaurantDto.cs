@@ -8,6 +8,7 @@ namespace dotnetWebApi.Models
 {
     public class CreateRestaurantDto
     {
+        // remove it to watch how error handling middleware works
         [Required]
         [MaxLength(25)]
         public string Name { get; set; }
