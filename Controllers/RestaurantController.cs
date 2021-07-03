@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 namespace dotnetWebApi.Controllers
 {
     [Route("api/restaurant")]
+    [ApiController]
     public class RestaurantController : ControllerBase
     {
         private readonly IRestaurantService _restaurantService;
@@ -20,14 +21,6 @@ namespace dotnetWebApi.Controllers
         public RestaurantController(IRestaurantService restaurantService)
         {
             _restaurantService = restaurantService;
-        }
-
-        [HttpGet]
-        public ActionResult<IEnumerable<RestaurantDto>> GetAll()
-        {
-            var restaurantsDtos = _restaurantService.GetAll();
-
-            return Ok(restaurantsDtos);
         }
 
         [HttpGet("{id}")]
@@ -38,52 +31,36 @@ namespace dotnetWebApi.Controllers
             return Ok(restaurant);
         }
 
+        [HttpGet]
+        public ActionResult<IEnumerable<RestaurantDto>> GetAll()
+        {
+            var restaurantsDtos = _restaurantService.GetAll();
+
+            return Ok(restaurantsDtos);
+        }
+
         [HttpPost]
         public ActionResult CreateRestaurant([FromBody] CreateRestaurantDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var id = _restaurantService.Create(dto);
 
-            return Created($"/api/restaurant/{id}", id);
+            return Created($"/api/restaurant/{id}", null);
         }
 
         [HttpPut("{id}")]
         public ActionResult Update([FromBody] UpdateRestaurantDto dto, [FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            _restaurantService.Update(id, dto);
 
-            var isUpdated = _restaurantService.Update(id, dto);
-
-            if (!isUpdated)
-            {
-                return NotFound();
-            }
-            else
-            {
-                return Ok();
-            }
+            return Ok();
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] int id)
         {
-            var isDeleted = _restaurantService.Delete(id);
+            _restaurantService.Delete(id);
 
-            if (isDeleted)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return NotFound();
-            }
+            return NoContent();
         }
     }
 }

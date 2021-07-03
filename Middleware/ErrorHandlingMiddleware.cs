@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using dotnetWebApi.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,11 @@ namespace dotnetWebApi.Middleware
             try
             {
                 await next.Invoke(context);
+            }
+            catch (NotFoundException notFoundException)
+            {
+                context.Response.StatusCode = 404;
+                await context.Response.WriteAsync(notFoundException.Message);
             }
             catch (Exception e)
             {
