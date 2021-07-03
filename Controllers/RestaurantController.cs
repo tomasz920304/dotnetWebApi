@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using dotnetWebApi.Entities;
 using dotnetWebApi.Models;
+using dotnetWebApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,28 +12,20 @@ using System.Threading.Tasks;
 
 namespace dotnetWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/restaurant")]
     public class RestaurantController : ControllerBase
     {
-        private readonly RestaurantDbContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IRestaurantService _restaurantService;
 
-        public RestaurantController(RestaurantDbContext dbContext, IMapper mapper)
+        public RestaurantController(IRestaurantService restaurantService)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _restaurantService = restaurantService;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<RestaurantDto>> GetAll()
         {
-            var restaurants = _dbContext
-                .Restaurants
-                .Include(r => r.Address)
-                .Include(r => r.Dishes)
-                .ToList();
-
-            var restaurantsDtos = _mapper.Map<List<RestaurantDto>>(restaurants);
+            var restaurantsDtos = _restaurantService.GetAll();
 
             return Ok(restaurantsDtos);
         }
@@ -40,15 +33,9 @@ namespace dotnetWebApi.Controllers
         [HttpGet("{id}")]
         public ActionResult<RestaurantDto> Get([FromRoute] int id)
         {
-            var restaurant = _dbContext
-                .Restaurants
-                .Include(r => r.Address)
-                .Include(r => r.Dishes)
-                .FirstOrDefault(r => r.Id == id);
+            var restaurant = _restaurantService.GetById(id);
 
-            var restaurantDtos = _mapper.Map<RestaurantDto>(restaurant);
-
-            return Ok(restaurantDtos);
+            return Ok(restaurant);
         }
 
         [HttpPost]
@@ -59,12 +46,24 @@ namespace dotnetWebApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var restaurant = _mapper.Map<Restaurant>(dto);
+            var id = _restaurantService.Create(dto);
 
-            _dbContext.Restaurants.Add(restaurant);
-            _dbContext.SaveChanges();
+            return Created($"/api/restaurant/{id}", null);
+        }
 
-            return Created($"/api/restaurant/{restaurant.Id}", restaurant.Id);
+        [HttpDelete("{id}")]
+        public ActionResult Delete([FromRoute] int id)
+        {
+            var isDeleted = _restaurantService.Delete(id);
+
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return NotFound();
+            }
         }
     }
 }
