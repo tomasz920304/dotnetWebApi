@@ -2,6 +2,7 @@
 using dotnetWebApi.Entities;
 using dotnetWebApi.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,13 @@ namespace dotnetWebApi.Services
     {
         private readonly RestaurantDbContext _dbContext;
         private readonly IMapper _mapper;
+        public ILogger<RestaurantService> _logger;
 
-        public RestaurantService(RestaurantDbContext dbContext, IMapper mapper)
+        public RestaurantService(RestaurantDbContext dbContext, IMapper mapper, ILogger<RestaurantService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public RestaurantDto GetById(int id)
@@ -85,6 +88,9 @@ namespace dotnetWebApi.Services
 
         public bool Delete(int id)
         {
+            _logger.LogError($"Restaurant with id: {id} DELETE action invoked");
+            //_logger.LogWarning($"Restaurant with id: {id} DELETE action invoked");
+
             var restaurant = _dbContext
                 .Restaurants
                 .FirstOrDefault(r => r.Id == id);
