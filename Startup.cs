@@ -33,6 +33,7 @@ namespace dotnetWebApi
             services.AddDbContext<RestaurantDbContext>();
             //    (options => options.UseSqlServer(Configuration.GetConnectionString("RestaurantDbConnection")));
             services.AddScoped<RestaurantSeeder>();
+            services.AddAutoMapper(this.GetType().Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
