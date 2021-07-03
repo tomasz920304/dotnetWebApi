@@ -14,6 +14,7 @@ namespace dotnetWebApi.Services
         IEnumerable<RestaurantDto> GetAll();
         RestaurantDto GetById(int id);
         int Create(CreateRestaurantDto dto);
+        bool Update(int id, UpdateRestaurantDto dto);
         bool Delete(int id);
     }
 
@@ -63,6 +64,23 @@ namespace dotnetWebApi.Services
             _dbContext.SaveChanges();
 
             return restaurant.Id;
+        }
+
+        public bool Update(int id, UpdateRestaurantDto dto)
+        {
+            var restaurant = _dbContext
+                .Restaurants
+                .FirstOrDefault(r => r.Id == id);
+
+            if (restaurant is null) return false;
+
+            restaurant.Name = dto.Name;
+            restaurant.Description = dto.Description;
+            restaurant.HasDelivery = dto.HasDelivery;
+
+            _dbContext.SaveChanges();
+
+            return true;
         }
 
         public bool Delete(int id)
